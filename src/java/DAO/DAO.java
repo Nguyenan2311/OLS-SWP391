@@ -11,6 +11,8 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import model.Blog;
+import model.BlogCategory;
+import model.BlogDTO;
 import model.CourseDTO;
 import model.Slider;
 import model.User;
@@ -52,6 +54,20 @@ public class DAO extends DBContext {
         } catch (Exception e) {
         }
         return null;
+    }
+
+    public void changePassword(String email, String password) {
+        String query = "UPDATE [dbo].[User]\n"
+                + "SET password = ?\n"
+                + "WHERE email = ?;";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setString(2, email);
+            ps.setString(1, password);
+            ps.executeUpdate();
+        } catch (Exception e) {
+        }
     }
 
     public List<Slider> getSlider() {
@@ -97,9 +113,90 @@ public class DAO extends DBContext {
         return list;
     }
 
+    public List<BlogDTO> getListPost() {
+        List<BlogDTO> list = new ArrayList<>();
+        String query = "SELECT b.id, b.thumbnail_url, b.title, b.content, b.brief_info, b.author_id, b.created_date,b.updated_date,b.category_id, u.first_name + ' ' + u.last_name AS author_name, s.value\n"
+                + "                FROM [dbo].[Blog] b\n"
+                + "                JOIN [dbo].[User] u ON b.author_id = u.id\n"
+                + "				join Setting s on b.category_id = s.id\n"
+                + "                ORDER BY created_date DESC";
+        try {
+            conn = new DBContext().getConnection();//mo ket noi voi sql
+            ps = conn.prepareStatement(query);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(new BlogDTO(
+                        rs.getInt(1),
+                        rs.getString(2),
+                        rs.getString(3),
+                        rs.getString(4),
+                        rs.getString(5),
+                        rs.getInt(6),
+                        rs.getDate(7),
+                        rs.getDate(8),
+                        rs.getInt(9),
+                        rs.getString(10),
+                        rs.getString(11)));
+            }
+        } catch (Exception e) {
+        }
+        return list;
+    }
+
+    public List<BlogDTO> getListPostByCategory(String id) {
+        List<BlogDTO> list = new ArrayList<>();
+        String query = "SELECT b.id, b.thumbnail_url, b.title, b.content, b.brief_info, b.author_id, b.created_date,b.updated_date,b.category_id, u.first_name + ' ' + u.last_name AS author_name, s.value\n"
+                + "                FROM [dbo].[Blog] b\n"
+                + "                JOIN [dbo].[User] u ON b.author_id = u.id\n"
+                + "				join Setting s on b.category_id = s.id\n"
+                + "				where b.category_id = ?\n"
+                + "                ORDER BY created_date DESC";
+        try {
+            conn = new DBContext().getConnection();//mo ket noi voi sql
+            ps = conn.prepareStatement(query);
+            ps.setString(1, id);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(new BlogDTO(
+                        rs.getInt(1),
+                        rs.getString(2),
+                        rs.getString(3),
+                        rs.getString(4),
+                        rs.getString(5),
+                        rs.getInt(6),
+                        rs.getDate(7),
+                        rs.getDate(8),
+                        rs.getInt(9),
+                        rs.getString(10),
+                        rs.getString(11)));
+            }
+        } catch (Exception e) {
+        }
+        return list;
+    }
+
+    public List<BlogCategory> getListCategory() {
+        List<BlogCategory> list = new ArrayList<>();
+        String query = "select id, value, description from Setting\n"
+                + "where setting_type_id = 3";
+        try {
+            conn = new DBContext().getConnection();//mo ket noi voi sql
+            ps = conn.prepareStatement(query);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(new BlogCategory(
+                        rs.getInt(1),
+                        rs.getString(2),
+                        rs.getString(3)));
+            }
+        } catch (Exception e) {
+        }
+        return list;
+    }
+
     public List<Blog> getLastPost() {
         List<Blog> list = new ArrayList<>();
-        String query = "SELECT *\n"
+        String query = "SELECT top 5 *\n"
                 + "FROM [dbo].[Blog]\n"
                 + "ORDER BY created_date DESC;";
         try {
@@ -153,9 +250,12 @@ public class DAO extends DBContext {
         DAO dao = new DAO();
         User user = dao.login("admin@fpt.edu.vn", "admin123");
         List<Slider> listS = dao.getSlider();
-        List<Blog> listP = dao.getLastPost();
+        List<BlogDTO> listP = dao.getListPost();
         List<CourseDTO> listC = dao.getCourse();
+        List<BlogCategory> listBC = dao.getListCategory();
+        for (BlogCategory o : listBC) {
+            System.out.println(o);
+        }
 
-        System.out.println(listS);
     }
 }
