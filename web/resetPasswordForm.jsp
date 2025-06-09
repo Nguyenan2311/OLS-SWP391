@@ -27,8 +27,8 @@
                 box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             }
 
-            .logo {
-                height: 50px; /* Chiều cao cố định */
+           .logo {
+                height: 45px; /* Chiều cao cố định */
                 display: flex;
                 align-items: center;
             }
@@ -38,7 +38,6 @@
                 max-width: 200px; /* Giới hạn chiều rộng tối đa */
                 object-fit: contain; /* Đảm bảo ảnh không bị biến dạng */
             }
-
             .nav-links {
                 display: flex;
                 gap: 30px;
@@ -174,11 +173,20 @@
                 border-top: 1px solid #eee;
                 margin: 30px 0;
             }
+            
+            .error-message {
+                color: red;
+                font-size: 14px;
+                margin-top: 5px;
+                display: none;
+            }
         </style>
     </head>
     <body>
         <nav class="navbar">
-            <div class="logo"><img src="/ima/logo.png" alt=""></div>
+            <div class="logo">
+            <img src="img/logo.png" alt="alt"/>
+        </div>
             <div class="nav-links">
                 <a href="#">Home</a>
                 <a href="#">Courses</a>
@@ -203,19 +211,21 @@
                 </div>
             <% } %>
 
-            <form action="ResetPasswordServlet" method="POST">
+            <form action="ResetPasswordServlet" method="POST" id="passwordForm">
                 <input type="hidden" name="token" value="<%= request.getParameter("token") %>">
                 
                 <div class="form-group">
                     <label for="newPassword">New password</label>
                     <input type="password" id="newPassword" name="newPassword" required 
-                           minlength="8" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).*$"
-                           title="Must contain at least 8 characters, including uppercase, lowercase and number">
+                           oninput="validatePassword(this)">
+                    <div id="passwordError" class="error-message"></div>
                 </div>
 
                 <div class="form-group">
                     <label for="confirmPassword">Confirm new password</label>
-                    <input type="password" id="confirmPassword" name="confirmPassword" required>
+                    <input type="password" id="confirmPassword" name="confirmPassword" required
+                           oninput="checkPasswordMatch()">
+                    <div id="confirmError" class="error-message"></div>
                 </div>
 
                 <button type="submit" class="submit-btn">Change Password</button>
@@ -223,17 +233,65 @@
         </div>
 
         <script>
-            // Validate password match client-side
-            document.querySelector('form').addEventListener('submit', function(e) {
-                const password = document.getElementById('newPassword').value;
-                const confirmPassword = document.getElementById('confirmPassword').value;
+            function validatePassword(input) {
+                const passwordError = document.getElementById("passwordError");
+                const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+                
+                if (input.value.length === 0) {
+                    passwordError.style.display = "none";
+                    input.setCustomValidity("");
+                    return;
+                }
+                
+                if (!regex.test(input.value)) {
+                    passwordError.textContent = "Password must be at least 8 characters long and include uppercase, lowercase letters, and a number!";
+                    passwordError.style.display = "block";
+                    input.setCustomValidity("Invalid password");
+                } else {
+                    passwordError.style.display = "none";
+                    input.setCustomValidity("");
+                }
+                
+                checkPasswordMatch();
+            }
+            
+            function checkPasswordMatch() {
+                const password = document.getElementById("newPassword").value;
+                const confirmPassword = document.getElementById("confirmPassword").value;
+                const confirmError = document.getElementById("confirmError");
+                
+                if (confirmPassword.length === 0) {
+                    confirmError.style.display = "none";
+                    document.getElementById("confirmPassword").setCustomValidity("");
+                    return;
+                }
                 
                 if (password !== confirmPassword) {
-                    e.preventDefault();
-                    alert('Passwords do not match!');
-                    return false;
+                    confirmError.textContent = "Passwords do not match!";
+                    confirmError.style.display = "block";
+                    document.getElementById("confirmPassword").setCustomValidity("Passwords do not match");
+                } else {
+                    confirmError.style.display = "none";
+                    document.getElementById("confirmPassword").setCustomValidity("");
                 }
-                return true;
+            }
+            
+            document.getElementById("passwordForm").addEventListener("submit", function(e) {
+                const password = document.getElementById("newPassword").value;
+                const confirmPassword = document.getElementById("confirmPassword").value;
+                const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+                
+                if (!regex.test(password)) {
+                    e.preventDefault();
+                    document.getElementById("passwordError").textContent = "Password must be at least 8 characters long and include uppercase, lowercase letters, and a number!";
+                    document.getElementById("passwordError").style.display = "block";
+                    document.getElementById("newPassword").focus();
+                } else if (password !== confirmPassword) {
+                    e.preventDefault();
+                    document.getElementById("confirmError").textContent = "Passwords do not match!";
+                    document.getElementById("confirmError").style.display = "block";
+                    document.getElementById("confirmPassword").focus();
+                }
             });
         </script>
     </body>
