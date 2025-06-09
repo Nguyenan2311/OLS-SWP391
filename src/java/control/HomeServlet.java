@@ -12,6 +12,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import model.Blog;
 import model.CourseDTO;
@@ -37,6 +38,7 @@ public class HomeServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
+           
             DAO dao = new DAO();
             List<Slider> listSlider = dao.getSlider();// lay slider tu dao
             List<Blog> listPost = dao.getPost();// lay danh sach post tu dao
@@ -48,7 +50,7 @@ public class HomeServlet extends HttpServlet {
             request.setAttribute("listLastPost", listLastPost);
             request.setAttribute("listCourse", listCourse);
             
-            request.getRequestDispatcher("view/home.jsp").forward(request, response);
+            request.getRequestDispatcher("home.jsp").forward(request, response);
 
         }
     }
