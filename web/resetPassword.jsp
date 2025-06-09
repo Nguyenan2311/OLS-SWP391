@@ -33,10 +33,10 @@
                 box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             }
 
-            
-               
+
+
             .logo {
-                height: 50px; /* Chiều cao cố định */
+                height: 45px; /* Chiều cao cố định */
                 display: flex;
                 align-items: center;
             }
@@ -98,7 +98,7 @@
                 font-weight: bold;
                 cursor: pointer;
                 width: 150px;       /* chiều rộng */
-                height: 50px; 
+                height: 50px;
                 border-radius:10px; /* bo góc */
             }
 
@@ -185,7 +185,9 @@
     </head>
     <body>
         <nav class="navbar">
-            <div class="logo"><img src="/ima/logo.png"alt=""></div>
+            <div class="logo">
+                <img src="img/logo.png" alt="alt"/>
+            </div>
             <div class="nav-links">
                 <a href="#">Home</a>
                 <a href="#">Courses</a>
@@ -199,26 +201,41 @@
                 <button class="signup-btn">Sign Up</button>
             </div>
         </nav>
- <div class="container">
+        <div class="container">
             <h2>RESET PASSWORD</h2>
             <p>Provide us with your registered email address</p>
 
             <%-- Hiển thị thông báo lỗi --%>
             <% if (request.getAttribute("error") != null) { %>
-                <div style="color: red; text-align: center; margin-bottom: 20px;">
-                    <%= request.getAttribute("error") %>
-                </div>
+            <div style="color: red; text-align: center; margin-bottom: 20px;">
+                <%= request.getAttribute("error") %>
+            </div>
             <% } %>
 
-            <form action="RequestResetPasswordServlet" method="POST">
+            <form id="resetForm" action="RequestResetPasswordServlet" method="GET" novalidate>
                 <div class="form-group">
-                    <input type="email" id="email" name="email" placeholder="✉ Email" required>
+                    <input type="text" id="email" name="email" placeholder="✉ Email">
                 </div>
-
                 <button type="submit" class="submit-btn">Send Reset Link</button>
-                
                 <a href="login.jsp" class="login-link">Want to back? Login</a>
             </form>
+
+            <script>
+                document.getElementById("resetForm").addEventListener("submit", function (e) {
+                    var email = document.getElementById("email").value.trim();
+                    var emailPattern = /^[a-zA-Z0-9._]+@[a-zA-Z0-9._]+\.[a-zA-Z]{2,}$/;
+
+                    if (email === "") {
+                        alert("Please input Email");
+                        e.preventDefault();
+                    } else if (!emailPattern.test(email)) {
+                        alert("Invalid email. Please enter correct format.");
+                        e.preventDefault();
+                    }
+                });
+            </script>
+
+
         </div>
     </body>
 </html>

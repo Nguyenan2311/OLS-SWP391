@@ -27,17 +27,16 @@
                 box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             }
 
-            .logo {
-                height: 50px;
+           .logo {
+                height: 45px; /* Chiều cao cố định */
                 display: flex;
                 align-items: center;
             }
-            
             .logo img {
-                height: 100%;
-                width: auto;
-                max-width: 150px;
-                object-fit: contain;
+                height: 200%; /* Chiếm toàn bộ chiều cao của container */
+                width: auto; /* Giữ tỷ lệ gốc của ảnh */
+                max-width: 200px; /* Giới hạn chiều rộng tối đa */
+                object-fit: contain; /* Đảm bảo ảnh không bị biến dạng */
             }
 
             .nav-links {
@@ -125,7 +124,9 @@
     </head>
     <body>
         <nav class="navbar">
-            <div class="logo"><img src="/ima/logo.png" alt="EDEMY Logo"></div>
+           <div class="logo">
+            <img src="img/logo.png" alt="alt"/>
+        </div>
             <div class="nav-links">
                 <a href="#">Home</a>
                 <a href="#">Courses</a>
